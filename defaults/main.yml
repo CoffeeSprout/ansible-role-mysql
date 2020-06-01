@@ -1,0 +1,68 @@
+---
+# defaults file for coffeesprout.mysql
+
+mysql_version: "57"
+mysql_vendor: mysql
+
+mysql_python_module: py27-MySQLdb
+
+mysql_extra_utilities: []
+
+_mysql_adminusers:
+- /root
+- "{{ mysql_adminusers }}"
+
+mysql_adminusers: []
+
+#This is ignored if the .mysql_secret file is set on initial install
+mysql_changerootpw: no
+
+mysql_port: 3306
+mysql_bind_address: 0.0.0.0
+
+mysql_config:
+- option: default-storage-engine
+  value: InnoDB
+- option: port
+  value: "{{ mysql_port }}"
+- option: bind-address
+  value: "{{ mysql_bind_address }}"
+- option: server-id
+  value: "{{ mysql_server_id | default('1') }}"
+- option: innodb_data_home_dir
+  value: "{{ mysql_innodb_data_dir }}"
+- option: innodb_log_group_home_dir
+  value: "{{ mysql_innodb_log_dir }}"
+- option: innodb_buffer_pool_size
+  value: "{{ mysql_innodb_psize }}"
+- option: key_buffer_size
+  value: "{{ mysql_key_buffer }}"
+- option: innodb-log-file-size
+  value: "{{ mysql_innodb_logsize }}"
+- option: innodb_write_io_threads
+  value: "{{ mysql_innodb_write_io_threads }}"
+- option: innodb_read_io_threads
+  value: "{{ mysql_innodb_read_io_threads }}"
+- option: innodb_file_per_table
+  value: "{{ mysql_innodb_file_per_table | default('ON') }}"
+
+
+# The saucy performance settings
+mysql_innodb_psize: 2G
+mysql_key_buffer: 256M
+mysql_innodb_logsize: 128M
+mysql_innodb_read_io_threads: "{{ ansible_processor_count }}"
+mysql_innodb_write_io_threads: "{{ ansible_processor_count }}"
+
+mysql_backup_location: "/tmp/mysql-backups"
+
+mysql_restart_on_change: yes
+mysql_install_mysqldb: yes
+
+mysql_databases: []
+mysql_users: []
+mysql_replication_users: []
+
+mysql_dump_folder: /tmp/mysql
+mysql_dump_compression: "xz"
+mysql_dump_fetch_destination: "{{ playbook_dir }}/files/mysql/"

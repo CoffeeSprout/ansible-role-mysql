@@ -1,0 +1,8 @@
+---
+# handlers file for coffeesprout.mysql
+#
+- name: restart mysql
+  service:
+    name: "{{ mysql_service }}"
+    state: restarted
+  when: mysql_restart_on_change

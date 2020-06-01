@@ -1,0 +1,66 @@
+---
+
+- name: ensure OS specifics are included
+  include_vars: "{{ item }}"
+  with_first_found:
+  - "{{ ansible_os_family }}.yml"
+  - main.yml
+  tags:
+  - always
+
+- name: run FreeBSD specifics
+  include_tasks: install_FreeBSD.yml
+  when: "'FreeBSD' in ansible_os_family"
+
+- name: run RedHat specifics
+  include_tasks: install_RedHat.yml
+  when: "'RedHat' in ansible_os_family"
+
+- name: ensure folders exist for innodb
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: mysql
+    group: mysql
+    mode: 0750
+  with_items:
+  - "{{ mysql_innodb_data_dir }}"
+  - "{{ mysql_innodb_log_dir }}"
+  tags:
+  - install
+  - dataset
+
+- name: ensure backup recovery folder exists
+  file:
+    path: "{{ mysql_backup_location }}"
+    state: directory
+    owner: mysql
+    group: mysql
+  tags:
+  - import
+
+- name: ensure my.cnf is properly setup
+  ini_file:
+    dest: "{{ mysql_my_cnf }}"
+    section: "{{ item.section | default('mysqld') }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+  with_items: "{{ mysql_config }}"
+  notify: restart mysql
+  tags:
+  - configure
+
+- name: ensure MySQL will be started
+  service:
+    name: "{{ mysql_service }}"
+    state: started
+  tags:
+  - startup
+
+- name: wait until MySQL is available
+  wait_for:
+    port: '{{ mysql_port }}'
+    host: '{{ mysql_bind_address }}'
+    connect_timeout: 3
+    delay: 3
+    timeout: 30

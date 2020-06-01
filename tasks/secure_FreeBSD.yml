@@ -1,0 +1,49 @@
+---
+
+- name: check if /root/.mysql_secret exists
+  stat:
+    path: /root/.mysql_secret
+  register: mysql_secret
+  tags:
+  - secure
+  - freebsd
+
+- name: divine the generated root password from MySQL 5.7 install
+  shell: "tail -n1 /root/.mysql_secret"
+  register: mysql_secret_password
+  when: mysql_secret.stat.exists
+  tags:
+  - secure
+  - freebsd
+
+- name: ensure MySQL root user password is set
+  command: /usr/local/bin/mysqladmin -u root -p'{{ mysql_secret_password.stdout }}' password "{{ mysql_rootpw }}"
+  when: mysql_changerootpw or mysql_secret.stat.exists
+  register: mysql_rootpw_set
+  tags:
+  - secure
+  - freebsd
+
+- name: ensure /root/.mysql_secret is removed when we are done
+  file:
+    path: /root/.mysql_secret
+    state: absent
+  when: mysql_rootpw_set.changed and mysql_secret.stat.exists
+  tags:
+  - secure
+  - freebsd
+
+
+- name: check if we have the correct password for root setup
+  block:
+  - name: request version; This can fail on the first try
+    mysql_variables:
+      variable: version
+      login_user: root
+      login_password: "{{ mysql_rootpw }}"
+    register: mysql_version_variable
+  - debug:
+      msg: "Correctly retrieved {{ mysql_version_variable }} as variable from MySQL, skipping the initial setup"
+  rescue:
+  - name: FreeBSD usually ships without a password for 5.6 and 8.0; Lets try that
+    shell: mysql -u root -NBe 'ALTER USER "root"@"localhost" IDENTIFIED WITH mysql_native_password BY "{{ mysql_rootpw }}";' --connect-expired-password

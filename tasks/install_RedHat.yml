@@ -1,0 +1,24 @@
+- name: enable mysql yum repo
+  yum:
+    name: "{{ mysql_yum_repo }}"
+    state: present
+
+- name: select right mysql repo version
+  ini_file:
+    path: /etc/yum.repos.d/mysql-community.repo
+    section: "{{ item }}"
+    option: "enabled"
+    value: "{{ '1' if mysql_version|string in item else '0' }}"
+  with_items:
+  - mysql55-community
+  - mysql56-community
+  - mysql57-community
+  - mysql80-community
+
+- name: ensure MySQL is installed
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ mysql_packages }}"
+  tags:
+  - install

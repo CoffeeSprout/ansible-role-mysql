@@ -1,0 +1,16 @@
+---
+
+- name: ensure MySQL is installed
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ mysql_packages }}"
+  tags:
+  - install
+
+- name: ensure MySQL enabled in rc.conf
+  sysrc:
+    name: "mysql_enable"
+    value: "YES"
+  tags:
+  - startup

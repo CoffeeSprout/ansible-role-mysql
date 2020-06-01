@@ -1,0 +1,12 @@
+mysql_yum_repo: https://dev.mysql.com/get/mysql80-community-release-el7-3.noarch.rpm
+
+mysql_service: "mysqld"
+mysql_innodb_data_dir: /var/lib/mysql
+mysql_innodb_log_dir: /var/lib/mysql
+mysql_error_log: /var/log/mysqld.log
+mysql_my_cnf: /etc/my.cnf
+
+mysql_packages:
+- mysql-community-server
+- python2-pip
+- python2-PyMySQL

@@ -1,0 +1,21 @@
+- name: Ensure MySQL databases are present.
+  mysql_db:
+    name: "{{ item.name }}"
+    collation: "{{ item.collation | default('utf8_general_ci') }}"
+    encoding: "{{ item.encoding | default('utf8') }}"
+    state: present
+  with_items: "{{ mysql_databases }}"
+  register: databases_created
+  tags:
+  - databases
+
+#TODO: Fix this
+#- name: load databases that have a backup file
+#  mysql_db:
+#    name: "{{ item.item.name }}"
+#    state: import
+#    target: "{{ mysql_backup_location }}/{{ item.item.backup_file }}"
+#  with_items: "{{ databases_created.results }}"
+#  when: "{{ item.item.backup_file is defined and item.changed }}"
+#  tags:
+#  - import

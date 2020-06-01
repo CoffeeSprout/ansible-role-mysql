@@ -1,0 +1,24 @@
+galaxy_info:
+  author: Barry van Someren
+  description: Install MySQL to CentOS 7 and FreeBSD
+  company: CoffeeSprout ICT Services
+
+  license: BSD
+
+  min_ansible_version: 2.8
+
+  platforms:
+  - name: FreeBSD
+    versions:
+    - all
+  - name: EL
+    versions:
+    - 7
+
+  galaxy_tags:
+  - centos
+  - freebsd
+  - mysql
+  - database
+
+dependencies: []

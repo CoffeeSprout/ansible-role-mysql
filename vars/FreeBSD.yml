@@ -1,0 +1,11 @@
+mysql_service: "mysql-server"
+mysql_vendor: "mysql"
+mysql_my_cnf: /usr/local/etc/{{ mysql_vendor }}/my.cnf
+mysql_innodb_data_dir: /var/db/mysql_innodb/data
+mysql_innodb_log_dir: /var/db/mysql_innodb/log
+
+mysql_packages:
+- "{{ mysql_vendor }}{{ mysql_version }}-server"
+- "{{ mysql_vendor }}{{ mysql_version }}-client"
+- "py{{ ''.join(ansible_python_version.split('.')[:2])}}-pymysql"
+- "{{ mysql_extra_utilities }}"

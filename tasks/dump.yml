@@ -1,0 +1,22 @@
+---
+
+- name: ensure dump folder is present {{ mysql_dump_folder }}
+  file:
+    path: "{{ mysql_dump_folder }}"
+    state: directory
+  tags:
+  - mysqldump
+
+- name: dump database {{ mysql_database }}
+  mysql_db:
+    state: dump
+    name: "{{ mysql_database }}"
+    target: "{{ mysql_dump_folder }}/{{ mysql_database }}.{{ mysql_dump_compression }}"
+  tags:
+  - mysqldump
+
+- name: optionally fetch {{ mysql_database }}
+  fetch:
+    src: "{{ mysql_dump_folder }}/{{ mysql_database }}.{{ mysql_dump_compression }}"
+    dest: "{{ mysql_dump_fetch_destination }}/{{ mysql_database }}.{{ mysql_dump_compression }}"
+    flat: True

@@ -1,0 +1,20 @@
+---
+
+- name: check if root password is already set and if not grab it from the logs
+  block:
+  - name: request version; This can fail on the first try
+    mysql_variables:
+      variable: version
+      login_user: root
+      login_password: "{{ mysql_rootpw }}"
+    register: mysql_version_variable
+  - debug:
+      msg: "Correctly retrieved {{ mysql_version_variable }} as variable from MySQL, skipping the initial setup"
+  rescue:
+  - name: retrieve the temporary password from the logs for MySQL 5.7
+    shell: >
+      grep "A temporary password is generated for" {{ mysql_error_log }} | awk '{print $NF}'
+    register: mysql_root_temp_password
+  - name: set correct root password
+    shell: mysql -u root -p'{{ mysql_root_temp_password.stdout }}' -NBe 'ALTER USER "root"@"localhost" IDENTIFIED WITH mysql_native_password BY "{{ mysql_rootpw }}";' --connect-expired-password
+    #Yuck, required because Ansible mysql_user doesn't support changing expired accounts through the expired account

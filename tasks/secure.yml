@@ -1,0 +1,24 @@
+---
+
+- name: run FreeBSD specifics
+  include_tasks: secure_FreeBSD.yml
+  when: "'FreeBSD' in ansible_os_family"
+
+- name: run RedHat specifics
+  include_tasks: secure_RedHat.yml
+  when: "'RedHat' in ansible_os_family"
+
+- name: ensure users can login as root using ~/.my.cnf
+  blockinfile:
+    dest: "{{ item }}/.my.cnf"
+    create: yes
+    marker: "# {mark} .my.cnf for this server"
+    content: |
+      [client]
+      host=127.0.0.1
+      user=root
+      password={{ mysql_rootpw }}
+  with_items: "{{ mysql_adminusers }}"
+  tags:
+  - secure
+  - mysql_admin_users
