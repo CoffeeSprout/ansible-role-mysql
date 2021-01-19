@@ -22,7 +22,7 @@
     state: directory
     owner: mysql
     group: mysql
-    mode: 0750
+    mode: 0755
   with_items:
   - "{{ mysql_innodb_data_dir }}"
   - "{{ mysql_innodb_log_dir }}"
@@ -45,7 +45,9 @@
     section: "{{ item.section | default('mysqld') }}"
     option: "{{ item.option }}"
     value: "{{ item.value }}"
-  with_items: "{{ mysql_config }}"
+  with_items:
+  - "{{ mysql_config }}"
+  - "{{ mysql_additional_config }}"
   notify: restart mysql
   tags:
   - configure

@@ -20,6 +20,8 @@ mysql_changerootpw: no
 mysql_port: 3306
 mysql_bind_address: 0.0.0.0
 
+mysql_additional_config: []
+
 mysql_config:
 - option: default-storage-engine
   value: InnoDB
